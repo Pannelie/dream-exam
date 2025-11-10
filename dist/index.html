@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./styles.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet" />
+    <script type="module" src="./index.js"></script>
+    <title>Guess the Plant</title>
+  </head>
+  <body>
+    <!-- Header som visas vid start -->
+    <header class="header__wrapper header__wrapper--big" id="startHeader">
+      <h1 class="header__title header__title--big">Det Lön(n)samma spelet</h1>
+      <section class="header__navigation header__navigation--big">
+        <nav class="header__nav-item header__nav-item--big" data-id="study">Plugga</nav>
+        <nav class="header__nav-item header__nav-item--big" data-id="play">Spela</nav>
+      </section>
+    </header>
+
+    <!-- Pluggsidan -->
+    <main>
+      <section class="page" id="studyPage">
+        <h2 class="study-title">Det lön(n)ar sig att studera</h2>
+        <section class="study-plants-section" id="plantsSection">
+          <!-- Mina hämtade lönnar från API -->
+        </section>
+      </section>
+
+      <!-- START för spelsidan -->
+      <section id="startScreen" class="page">
+        <h1>Välkommen till Lönn-quiz!</h1>
+        <button id="startGameBtn">Starta spelet</button>
+        <div id="startResultMsg" class="d-none"></div>
+      </section>
+
+      <!-- Spelsidan -->
+      <section class="page d-none" id="playPage">
+        <h2 id="playMsg" class="message d-none">Hoppas det lön(n)ar sig! Lycka till</h2>
+        <section class="play__section" id="playPlantSection">
+          <img
+            src="https://perenual.com/storage/species_image/52_acer_palmatum_crimson_prince/medium/1-1274349109Jjby.jpg"
+            alt="lönn"
+            class="play__img"
+          />
+          <h3 class="play__question">Vad är det här för lönn?</h3>
+          <section class="play__btn-section">
+            <button class="play__btn"></button>
+            <button class="play__btn"></button>
+            <button class="play__btn"></button>
+            <button class="play__btn"></button>
+          </section>
+        </section>
+      </section>
+      <section id="winningMsg" class="winning-msg d-none"></section>
+    </main>
+  </body>
+</html>

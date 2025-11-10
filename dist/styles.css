@@ -1,0 +1,154 @@
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+:root {
+  --main-bg-color: #566b55;
+  --main-title-color: #fbf9b6;
+  --main-btn-bg-color: #293528;
+  --main-font-family: "Montserrat", sans-serif;
+}
+body {
+  background-color: var(--main-bg-color);
+  font-family: var(--main-font-family);
+}
+
+/* ----------------header------------------ */
+.header__wrapper {
+  padding: 2rem;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 5rem;
+  text-align: center;
+}
+
+.header__title {
+  color: var(--main-title-color);
+  font-size: 4rem;
+  margin-bottom: 4rem;
+}
+
+.header__navigation {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.header__nav-item {
+  background-color: var(--main-btn-bg-color);
+  color: var(--main-title-color);
+  border: none;
+  font-size: 2rem;
+  border-radius: 10px;
+  padding: 0.8rem 2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.2s ease-in-out;
+  text-align: center;
+  width: fit-content;
+  cursor: pointer;
+}
+
+.header__nav-item:hover {
+  background-color: var(--main-title-color);
+  color: var(--main-btn-bg-color);
+}
+
+/* ----------------page------------------ */
+
+.page {
+  color: white;
+}
+/* ----------------study------------------ */
+
+.study-plants-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+  width: 90%;
+  margin: auto;
+}
+
+/* .study-plant {
+} */
+
+.study-plant__img {
+  width: 100%;
+  border: var(--main-title-color) 5pt solid;
+}
+
+.study-plant__title {
+  color: white;
+}
+
+.study-plant__info {
+  color: white;
+}
+
+/* -----------------SPEL------------------- */
+
+#playPage {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin: 2rem 0;
+}
+
+.play__title {
+  color: white;
+}
+
+.play__section {
+  display: grid;
+  grid-template-columns: 1fr; /* bara en kolumn för bilden */
+  justify-items: center; /* centrera innehållet horisontellt */
+  gap: 1.8rem;
+}
+
+.play__img {
+  width: 400px;
+  border: var(--main-title-color) 5pt solid;
+}
+
+.play__question {
+  color: white;
+}
+
+.play__btn-section {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* två knappar per rad */
+  gap: 1rem; /* mellanrum mellan knappar */
+  width: 80%; /* matchar bilden */
+}
+.play__btn {
+  width: 100%;
+  background-color: var(--main-title-color);
+  color: var(--main-btn-bg-color);
+  padding: 1rem;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.play__btn:hover {
+  background-color: var(--main-btn-bg-color);
+  color: var(--main-title-color);
+}
+
+.message {
+  color: white;
+  font-size: 1.5rem;
+  text-align: center;
+  margin-top: 4rem;
+  font-weight: 500;
+}
+
+.d-none {
+  display: none !important;
+}
