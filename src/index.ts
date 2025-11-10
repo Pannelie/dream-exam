@@ -21,71 +21,95 @@ const navSetup = (): void => {
 
 const toggleSectionDisplay = (section: string | undefined): void => {
   const studyPageRef = document.querySelector("#studyPage") as HTMLElement;
+  const gameStartPageRef = document.querySelector("#gameStartPage") as HTMLElement;
   const playPageRef = document.querySelector("#playPage") as HTMLElement;
+  const gameResultMsg = document.querySelector("#gameResultMsg") as HTMLElement;
+  const gameTitle = document.querySelector("#gameTitle") as HTMLElement;
+  const startBtn = document.querySelector<HTMLButtonElement>("#startGameBtn")!;
 
   switch (section) {
     case "study":
       studyPageRef.classList.remove("d-none");
-      if (!playPageRef.classList.contains("d-none")) {
-        playPageRef.classList.add("d-none");
-      }
+      gameStartPageRef.classList.add("d-none");
+      playPageRef.classList.add("d-none");
       break;
     case "play":
-      const winningMsg = document.querySelector("#winningMsg") as HTMLElement;
-
-      // Dölj vinstmeddelandet och visa play-sektionen igen
-      winningMsg.classList.add("d-none");
-      playPageRef.classList.remove("d-none");
-      if (!studyPageRef.classList.contains("d-none")) {
-        studyPageRef.classList.add("d-none");
-      }
-      if (maplesGlobal.length) {
-        renderQuizMaples(maplesGlobal);
-      }
+      gameStartPageRef.classList.remove("d-none");
+      gameTitle.innerText = "Välkommen till Lönn-quiz!";
+      startBtn.innerText = "Starta spelet";
+      studyPageRef.classList.add("d-none");
+      playPageRef.classList.add("d-none");
+      gameResultMsg.innerText = "";
+      gameResultMsg.classList.add(".d-none");
       break;
     default:
       console.log("Något gick fel");
   }
 };
 
+const quizStartSetup = (): void => {
+  const startBtn = document.querySelector<HTMLButtonElement>("#startGameBtn")!;
+  const gameStartPage = document.querySelector("#gameStartPage")!;
+  const playPage = document.querySelector("#playPage")!;
+  const gameResultMsg = document.querySelector("#gameResultMsg")!;
+
+  if (!startBtn) return;
+
+  startBtn.addEventListener("click", () => {
+    // Dölj startskärmen
+    gameStartPage.classList.add("d-none");
+
+    // Visa spel-sidan
+    playPage.classList.remove("d-none");
+
+    // Starta quiz
+    if (maplesGlobal.length) renderQuizMaples(maplesGlobal);
+
+    // Nollställ gameResultMsg
+    gameResultMsg.classList.add("d-none");
+  });
+};
+
 // fick hjälp av chatGpt, gjorde för många snabba anrop
 // och fick inte lov att ändra API längre vid ett tillfälle
 const maplesSetup = async (): Promise<void> => {
-  // const maplesBasicList = await fetchAllMaples();
-  const maplesBasicList = (await fetchAllMaples()).slice(0, 5);
+  // Kolla om vi redan har data i localStorage
+  const cachedMaples = localStorage.getItem("maplesData");
+  if (cachedMaples) {
+    console.log("Hämtar maples från localStorage");
+    maplesGlobal = JSON.parse(cachedMaples) as iPlantExtraInfo[];
+    renderStudyMaples(maplesGlobal);
+    return;
+  }
+
+  // Om ingen cache finns, hämta från API
+  const maplesBasicList = await fetchAllMaples();
 
   console.log("maplesBasicList: ", maplesBasicList);
   if (!maplesBasicList || !Array.isArray(maplesBasicList)) {
     console.error("Fel! fetchAllMaples returnerade inget eller fel format.");
     return;
   }
+
   console.log("antal maples:", maplesBasicList.length);
   const maples: iPlantExtraInfo[] = [];
 
   for (const maple of maplesBasicList) {
     try {
       const mapleDetails = await fetchMapleDetails(maple.id);
-
       if (!mapleDetails || !mapleDetails.common_name || !mapleDetails.default_image) {
         console.log(`Hoppar över lönn med id ${maple.id} eftersom data saknas`);
         continue;
       }
       maples.push(mapleDetails);
-
-      // Lägg in delay mellan requests, t.ex. 200 ms
-      await delay(200);
+      await delay(200); // delay mellan requests
     } catch (error) {
-      const err = error as iApiError;
-      console.log("Fel vid hämtning av lönn:", err);
-
-      // Om det är rate limit (429) kan vi vänta och försöka igen
-      if (err.status === 429) {
-        const retryAfter = (err.retryAfter ?? 5) * 1000; // fallback 5 s
-        console.log(`Rate limit träffad, väntar ${retryAfter / 1000} sekunder...`);
-        await delay(retryAfter);
-      }
+      console.error("Fel vid hämtning av lönn:", error);
     }
   }
+
+  // Spara den hämtade datan i localStorage
+  localStorage.setItem("maplesData", JSON.stringify(maples));
 
   maplesGlobal = maples;
   renderStudyMaples(maples);
@@ -135,19 +159,28 @@ const renderQuizMaples = (plants: iPlant[]): void => {
     if (plants.length === 0) return;
 
     if (currentQuestion > totalQuestions) {
-      playSection.classList.add("d-none");
-      const playMsg = document.querySelector("#playMsg") as HTMLElement;
-      playMsg.classList.remove("d-none");
+      const gameStartPage = document.querySelector("#gameStartPage") as HTMLElement;
+      const gameResultMsg = document.querySelector("#gameResultMsg") as HTMLElement;
+      const gameTitle = document.querySelector("#gameTitle") as HTMLElement;
+      const startGameBtn = document.querySelector("#startGameBtn") as HTMLElement;
+
+      playPage.classList.add("d-none");
+      gameStartPage.classList.remove("d-none");
+      gameResultMsg.classList.remove("d-none");
+      startGameBtn.innerText = "Spela igen?";
 
       if (score === totalQuestions) {
         console.log(`Det lönnar sig att studera, full pott med ${score} poäng`);
-        playMsg.innerText = `Det lönnar sig att studera, full pott!\n\n ${score} / ${totalQuestions} poäng`;
+        gameTitle.innerText = "Stort Grattis!";
+        gameResultMsg.innerText = `Det lönnar sig att studera, full pott!\n\n ${score} / ${totalQuestions} poäng`;
       } else if (score === 0) {
         console.log(`Lönn som lönn, eller? Tyvärr ${score} poäng. försök igen!`);
-        playMsg.innerText = `Lönn som lönn, eller?\n\n ${score} / ${totalQuestions} poäng`;
+        gameTitle.innerText = "Ajdå...";
+        gameResultMsg.innerText = `Lönn som lönn, eller?\n\n ${score} / ${totalQuestions} poäng`;
       } else {
         console.log(`Du fick lönn för mödan! ${score} poäng!`);
-        playMsg.innerText = `Du fick lönn för mödan!\n\n ${score} / ${totalQuestions} poäng`;
+        gameTitle.innerText = "Bra kämpat!";
+        gameResultMsg.innerText = `Du fick lönn för mödan!\n\n ${score} / ${totalQuestions} poäng`;
       }
       currentQuestion = 1;
       score = 0;
@@ -186,5 +219,6 @@ const renderQuizMaples = (plants: iPlant[]): void => {
 document.addEventListener("DOMContentLoaded", async (): Promise<void> => {
   pageSetup();
   navSetup();
+  quizStartSetup();
   await maplesSetup();
 });
