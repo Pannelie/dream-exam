@@ -21,17 +21,26 @@
     <!-- Pluggsidan -->
     <main>
       <section class="page" id="studyPage">
-        <h2 class="study-title">Det lön(n)ar sig att studera</h2>
-        <section class="study-plants-section" id="plantsSection">
+        <section class="study__box">
+          <h2 class="study__title">Det lön(n)ar sig att studera</h2>
+          <p class="study__text">De lärda säger att ingen lönn är den andra lik.</p>
+          <p class="study__text study__text--italic">Det säger inte nybörjarna.</p>
+          <p class="study__text">
+            Ta dig tiden att studera upp dina lönn-kunskaper och prova sedan dina färdigheter i det Lönnsamma-spelet!
+          </p>
+        </section>
+        <section class="study__section" id="plantsSection">
           <!-- Mina hämtade lönnar från API -->
         </section>
       </section>
 
       <!-- START för spelsidan -->
-      <section id="startScreen" class="page">
-        <h1>Välkommen till Lönn-quiz!</h1>
-        <button id="startGameBtn">Starta spelet</button>
-        <div id="startResultMsg" class="d-none"></div>
+      <section class="page d-none" id="gameStartPage">
+        <section class="start-game__box">
+          <h2 class="start-game__title" id="gameTitle"></h2>
+          <div id="gameResultMsg" class="start-game__message"></div>
+        </section>
+        <button class="start-game__btn" id="startGameBtn"></button>
       </section>
 
       <!-- Spelsidan -->

@@ -6,20 +6,11 @@ export const apiKey: string = "sk-KhLU6911aabb6e3e813338";
 export const fetchAllMaples = async (): Promise<iPlant[] | []> => {
   const allMaplesUrl: string = `https://perenual.com/api/species-list?key=${apiKey}&page=2`;
 
-  interface MapleApiData {
-    data: iPlant[];
-    current_page: number;
-    from: number;
-    to: number;
-    last_page: number;
-    per_page: number;
-    total: number;
-  }
   try {
     const response: Response = await fetch(allMaplesUrl);
 
     if (response.ok) {
-      const data: MapleApiData = await response.json();
+      const data: { data: iPlant[] } = await response.json();
       console.log("data from all maples: ", data);
       return data.data;
     } else {

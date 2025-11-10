@@ -10,21 +10,8 @@ interface iImage {
 export interface iPlantExtraInfo extends iPlant {
     type: string | null;
     description: string | null;
-    careLevel: string | null;
+    care_level: string | null;
     origin: string[];
-}
-export interface iApiError {
-    status?: number;
-    retryAfter?: number;
-    message?: string;
-}
-export interface iDogBreed {
-    id: number;
-    name: string;
-    temperament: string;
-    life_span: string;
-    origin?: string;
-    image?: string | null;
 }
 export {};
 //# sourceMappingURL=index.d.ts.map

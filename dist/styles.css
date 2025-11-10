@@ -20,22 +20,24 @@ body {
   padding: 2rem;
   width: 100%;
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  flex-direction: row;
+  justify-content: space-between;
+  gap: 1rem;
   margin-top: 5rem;
-  text-align: center;
+  padding: 0 4rem;
+  /* text-align: center; */
 }
 
 .header__title {
   color: var(--main-title-color);
   font-size: 4rem;
-  margin-bottom: 4rem;
 }
 
 .header__navigation {
   display: flex;
   flex-direction: row;
   justify-content: center;
+  align-items: center;
   gap: 1rem;
 }
 
@@ -63,31 +65,117 @@ body {
 
 .page {
   color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-top: 3rem;
 }
 /* ----------------study------------------ */
 
-.study-plants-section {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1rem;
-  width: 90%;
-  margin: auto;
+.study__box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  align-self: center;
+  gap: 0.6rem;
+  border: 2pt solid var(--main-btn-bg-color);
+  border-radius: 10px;
+  width: fit-content;
+  padding: 1.5rem;
+  margin: 2rem 2rem 4rem;
+  background-color: white;
+  color: var(--main-btn-bg-color);
+  text-align: center;
 }
-
-/* .study-plant {
-} */
 
 .study-plant__img {
   width: 100%;
   border: var(--main-title-color) 5pt solid;
 }
 
-.study-plant__title {
+.study__title {
+  color: var(--main-btn-bg-color);
+  font-size: 2rem;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+.study__text {
+  color: var(--main-btn-bg-color);
+  font-size: 1rem;
+}
+
+.study__text--italic {
+  font-size: 1.3rem;
+  font-style: italic;
+  font-weight: 600;
+  margin-bottom: 2rem;
+}
+
+.study__section {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 2rem;
+  width: 90%;
+  margin: auto;
   color: white;
+}
+.study-plant__title {
+  font-size: 1.2rem;
 }
 
 .study-plant__info {
-  color: white;
+  font-size: 0.9rem;
+  margin: 0.5rem 0;
+  line-height: 1.5;
+}
+.study-plant__info--bold {
+  font-weight: 700;
+}
+
+/* ----------------starta spel------------ */
+
+.start-game__box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 2pt solid var(--main-btn-bg-color);
+  border-radius: 10px;
+  width: 400px;
+  padding: 2rem;
+  margin: 2rem auto;
+  background-color: white;
+  color: var(--main-btn-bg-color);
+  text-align: center;
+}
+
+.start-game__title {
+  font-size: 2rem;
+  text-align: center;
+}
+
+.start-game__btn {
+  background-color: var(--main-btn-bg-color);
+  color: var(--main-title-color);
+  border: none;
+  font-size: 2rem;
+  border-radius: 10px;
+  padding: 0.8rem 2rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  transition: all 0.2s ease-in-out;
+  text-align: center;
+  margin: auto;
+  width: fit-content;
+  cursor: pointer;
+}
+
+.start-game__btn:hover {
+  background-color: var(--main-title-color);
+  color: var(--main-btn-bg-color);
+}
+
+.start-game__message {
+  margin-top: 1rem;
 }
 
 /* -----------------SPEL------------------- */
@@ -107,23 +195,27 @@ body {
   display: grid;
   grid-template-columns: 1fr; /* bara en kolumn för bilden */
   justify-items: center; /* centrera innehållet horisontellt */
-  gap: 1.8rem;
+  /* gap: 1.8rem; */
+  row-gap: 1rem;
+  column-gap: 1.5rem;
+  margin-top: 1rem;
 }
 
 .play__img {
-  width: 400px;
+  width: 250px;
   border: var(--main-title-color) 5pt solid;
 }
 
 .play__question {
   color: white;
+  font-size: 1.6rem;
 }
 
 .play__btn-section {
   display: grid;
   grid-template-columns: repeat(2, 1fr); /* två knappar per rad */
   gap: 1rem; /* mellanrum mellan knappar */
-  width: 80%; /* matchar bilden */
+  width: 50%; /* matchar bilden */
 }
 .play__btn {
   width: 100%;

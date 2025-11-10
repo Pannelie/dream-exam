@@ -1,50 +1,71 @@
+//Inser att översättning inte var så lätt som jag trodde
+// utan att riskera betalning.
+// Så lät engelska blandat med svenska vara kvar,
 import { fetchAllMaples, fetchMapleDetails } from "./api/fetchPlants.js";
-const delay = (ms) => new Promise((res) => setTimeout(res, ms));
 let maplesGlobal = [];
-const pageSetup = () => {
-    const pageRefs = document.querySelectorAll(".page");
-    pageRefs.forEach((page) => page.classList.add("d-none"));
-};
+let totalNrQuestions = 5;
 const navSetup = () => {
     const navItemRefs = document.querySelectorAll(".header__nav-item");
     navItemRefs.forEach((navItem) => {
         navItem.addEventListener("click", (e) => {
-            console.log(e.target.dataset.id);
+            const target = e.target;
+            const sectionId = target.dataset.id;
+            console.log(sectionId);
             toggleSectionDisplay(e.target.dataset.id);
         });
     });
 };
+// ------------bestämmer vad som ska visas beroende på toggle ------------
 const toggleSectionDisplay = (section) => {
     const studyPageRef = document.querySelector("#studyPage");
+    const gameStartPageRef = document.querySelector("#gameStartPage");
     const playPageRef = document.querySelector("#playPage");
+    const gameResultMsg = document.querySelector("#gameResultMsg");
+    const gameTitle = document.querySelector("#gameTitle");
+    const startBtn = document.querySelector("#startGameBtn");
     switch (section) {
         case "study":
             studyPageRef.classList.remove("d-none");
-            if (!playPageRef.classList.contains("d-none")) {
-                playPageRef.classList.add("d-none");
-            }
+            gameStartPageRef.classList.add("d-none");
+            playPageRef.classList.add("d-none");
             break;
         case "play":
-            const winningMsg = document.querySelector("#winningMsg");
-            // Dölj vinstmeddelandet och visa play-sektionen igen
-            winningMsg.classList.add("d-none");
-            playPageRef.classList.remove("d-none");
-            if (!studyPageRef.classList.contains("d-none")) {
-                studyPageRef.classList.add("d-none");
-            }
-            if (maplesGlobal.length) {
-                renderQuizMaples(maplesGlobal);
-            }
+            gameStartPageRef.classList.remove("d-none");
+            gameTitle.innerText = "Välkommen till Lönn-quiz!";
+            startBtn.innerText = "Starta spelet";
+            studyPageRef.classList.add("d-none");
+            playPageRef.classList.add("d-none");
+            gameResultMsg.innerText = `Du kommer få ${totalNrQuestions} frågor med tillhörande bild och fyra svarsalternativ. Ditt mål är att matcha rätt bild med rätt namn. \n\n\nLönn, lönnare, lönnast! \nLycka till!`;
             break;
         default:
             console.log("Något gick fel");
     }
 };
-// fick hjälp av chatGpt, gjorde för många snabba anrop
-// och fick inte lov att ändra API längre vid ett tillfälle
+// ------------Hur min start av quix ska se ut visuellt------------------
+const quizStartSetup = () => {
+    const startBtn = document.querySelector("#startGameBtn");
+    const gameStartPage = document.querySelector("#gameStartPage");
+    const playPage = document.querySelector("#playPage");
+    if (!startBtn)
+        return;
+    startBtn.addEventListener("click", () => {
+        gameStartPage.classList.add("d-none");
+        playPage.classList.remove("d-none");
+        if (maplesGlobal.length)
+            renderQuizMaples(maplesGlobal);
+    });
+};
+//---------------- Kolla om det redan finns lönn - data i localStorage---------------------
 const maplesSetup = async () => {
-    // const maplesBasicList = await fetchAllMaples();
-    const maplesBasicList = (await fetchAllMaples()).slice(0, 5);
+    const cachedMaples = localStorage.getItem("maplesData");
+    if (cachedMaples) {
+        console.log("Hämtar maples från localStorage");
+        maplesGlobal = JSON.parse(cachedMaples);
+        renderStudyMaples(maplesGlobal);
+        return;
+    }
+    // Om ingen cache finns, hämta från API
+    const maplesBasicList = await fetchAllMaples();
     console.log("maplesBasicList: ", maplesBasicList);
     if (!maplesBasicList || !Array.isArray(maplesBasicList)) {
         console.error("Fel! fetchAllMaples returnerade inget eller fel format.");
@@ -60,23 +81,17 @@ const maplesSetup = async () => {
                 continue;
             }
             maples.push(mapleDetails);
-            // Lägg in delay mellan requests, t.ex. 200 ms
-            await delay(200);
         }
         catch (error) {
-            const err = error;
-            console.log("Fel vid hämtning av lönn:", err);
-            // Om det är rate limit (429) kan vi vänta och försöka igen
-            if (err.status === 429) {
-                const retryAfter = (err.retryAfter ?? 5) * 1000; // fallback 5 s
-                console.log(`Rate limit träffad, väntar ${retryAfter / 1000} sekunder...`);
-                await delay(retryAfter);
-            }
+            console.error("Fel vid hämtning av lönn:", error);
         }
     }
+    // Spara den hämtade datan i localStorage
+    localStorage.setItem("maplesData", JSON.stringify(maples));
     maplesGlobal = maples;
     renderStudyMaples(maples);
 };
+//---------------------Förbereder för att mina maples ska synas--------------
 const renderStudyMaples = (maples) => {
     const plantsSection = document.querySelector("#plantsSection");
     maples.forEach((maple) => {
@@ -84,28 +99,29 @@ const renderStudyMaples = (maples) => {
         plantsSection?.appendChild(cardRef);
     });
 };
+//---------------------Skapar upp de enskilda maples-korten som ska visas--------------
 const createMapleCard = (maple) => {
     const cardRef = document.createElement("article");
     cardRef.classList.add("study-plant");
     const cardTemplate = `
     <img src="${maple.default_image.regular_url}" alt="${maple.common_name}" class="study-plant__img"/>
-    <h2 class="study-plant__title">Namn: ${maple.common_name}</h2>
-    <p class="study-plant__info">Vetenskapligt namn: ${maple.scientific_name[0]}</p>
-    <p class="study-plant__info">Vetenskapligt namn: ${maple.description}</p>
+    <h2 class="study-plant__title">${maple.common_name}</h2>
+    <p class="study-plant__info"><span class="study-plant__info--bold">Vetenskapligt namn:</span> ${maple.scientific_name[0]}</p>
+    <p class="study-plant__info"><span class="study-plant__info--bold">Beskrivning:</span> ${maple.description}</p>
   `;
     cardRef.innerHTML = cardTemplate;
     return cardRef;
 };
+//----------------------------Min spelplan-------------------------
 const renderQuizMaples = (plants) => {
     const playPage = document.querySelector("#playPage");
-    const playSection = playPage.querySelector("#playPlantSection");
     const imgEl = playPage.querySelector(".play__img");
     const questionEl = playPage.querySelector(".play__question");
     const btnsSection = document.querySelector(".play__btn-section");
     const btns = btnsSection.querySelectorAll(".play__btn");
     let currentPlant;
     let currentQuestion = 1;
-    let totalQuestions = 5;
+    let totalQuestions = totalNrQuestions;
     let score = 0;
     function getRandomFour(plants) {
         const shuffled = [...plants].sort(() => 0.5 - Math.random());
@@ -115,23 +131,35 @@ const renderQuizMaples = (plants) => {
         if (plants.length === 0)
             return;
         if (currentQuestion > totalQuestions) {
-            playSection.classList.add("d-none");
-            const playMsg = document.querySelector("#playMsg");
-            playMsg.classList.remove("d-none");
+            const gameStartPage = document.querySelector("#gameStartPage");
+            const gameResultMsg = document.querySelector("#gameResultMsg");
+            const gameTitle = document.querySelector("#gameTitle");
+            const startGameBtn = document.querySelector("#startGameBtn");
+            playPage.classList.add("d-none");
+            gameStartPage.classList.remove("d-none");
+            gameResultMsg.classList.remove("d-none");
+            startGameBtn.innerText = "Spela igen?";
             if (score === totalQuestions) {
                 console.log(`Det lönnar sig att studera, full pott med ${score} poäng`);
-                playMsg.innerText = `Det lönnar sig att studera, full pott!\n\n ${score} / ${totalQuestions} poäng`;
+                gameTitle.innerText = "Stort Grattis!";
+                gameResultMsg.innerText = `Det lönnar sig att studera, full pott!\n\n ${score} / ${totalQuestions} poäng`;
             }
             else if (score === 0) {
                 console.log(`Lönn som lönn, eller? Tyvärr ${score} poäng. försök igen!`);
-                playMsg.innerText = `Lönn som lönn, eller?\n\n ${score} / ${totalQuestions} poäng`;
+                gameTitle.innerText = "Ajdå...";
+                gameResultMsg.innerText = `Lönn som lönn, eller?\n\n ${score} / ${totalQuestions} poäng`;
             }
             else {
                 console.log(`Du fick lönn för mödan! ${score} poäng!`);
-                playMsg.innerText = `Du fick lönn för mödan!\n\n ${score} / ${totalQuestions} poäng`;
+                gameTitle.innerText = "Bra kämpat!";
+                gameResultMsg.innerText = `Du fick lönn för mödan!\n\n ${score} / ${totalQuestions} poäng`;
             }
             currentQuestion = 1;
             score = 0;
+            btns.forEach((btn) => {
+                btn.textContent = "";
+                btn.onclick = null;
+            });
             return;
         }
         const options = getRandomFour(plants);
@@ -164,8 +192,8 @@ const renderQuizMaples = (plants) => {
     newQuestion();
 };
 document.addEventListener("DOMContentLoaded", async () => {
-    pageSetup();
     navSetup();
+    quizStartSetup();
     await maplesSetup();
 });
 //# sourceMappingURL=index.js.map

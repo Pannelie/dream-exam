@@ -1,31 +1,34 @@
+//Inser att översättning inte var så lätt som jag trodde
+// utan att riskera betalning.
+// Så lät engelska blandat med svenska vara kvar,
+
 import { fetchAllMaples, fetchMapleDetails } from "./api/fetchPlants.js";
-import type { iPlant, iPlantExtraInfo, iApiError } from "./interfaces/index.js";
+import type { iPlant, iPlantExtraInfo } from "./interfaces/index.js";
 
-const delay = (ms: number): Promise<void> => new Promise((res) => setTimeout(res, ms));
 let maplesGlobal: iPlantExtraInfo[] = [];
-
-const pageSetup = (): void => {
-  const pageRefs = document.querySelectorAll<HTMLElement>(".page");
-  pageRefs.forEach((page) => page.classList.add("d-none"));
-};
+let totalNrQuestions: number = 5;
 
 const navSetup = (): void => {
   const navItemRefs = document.querySelectorAll<HTMLElement>(".header__nav-item");
+
   navItemRefs.forEach((navItem) => {
     navItem.addEventListener("click", (e: PointerEvent): void => {
-      console.log((e.target as HTMLElement).dataset.id);
+      const target = e.target as HTMLElement;
+      const sectionId: string | undefined = target.dataset.id;
+      console.log(sectionId);
       toggleSectionDisplay((e.target as HTMLElement).dataset.id);
     });
   });
 };
 
+// ------------bestämmer vad som ska visas beroende på toggle ------------
 const toggleSectionDisplay = (section: string | undefined): void => {
   const studyPageRef = document.querySelector("#studyPage") as HTMLElement;
   const gameStartPageRef = document.querySelector("#gameStartPage") as HTMLElement;
   const playPageRef = document.querySelector("#playPage") as HTMLElement;
   const gameResultMsg = document.querySelector("#gameResultMsg") as HTMLElement;
   const gameTitle = document.querySelector("#gameTitle") as HTMLElement;
-  const startBtn = document.querySelector<HTMLButtonElement>("#startGameBtn")!;
+  const startBtn = document.querySelector("#startGameBtn") as HTMLButtonElement;
 
   switch (section) {
     case "study":
@@ -39,41 +42,30 @@ const toggleSectionDisplay = (section: string | undefined): void => {
       startBtn.innerText = "Starta spelet";
       studyPageRef.classList.add("d-none");
       playPageRef.classList.add("d-none");
-      gameResultMsg.innerText = "";
-      gameResultMsg.classList.add(".d-none");
+      gameResultMsg.innerText = `Du kommer få ${totalNrQuestions} frågor med tillhörande bild och fyra svarsalternativ. Ditt mål är att matcha rätt bild med rätt namn. \n\n\nLönn, lönnare, lönnast! \nLycka till!`;
       break;
     default:
       console.log("Något gick fel");
   }
 };
 
+// ------------Hur min start av quix ska se ut visuellt------------------
 const quizStartSetup = (): void => {
-  const startBtn = document.querySelector<HTMLButtonElement>("#startGameBtn")!;
-  const gameStartPage = document.querySelector("#gameStartPage")!;
-  const playPage = document.querySelector("#playPage")!;
-  const gameResultMsg = document.querySelector("#gameResultMsg")!;
+  const startBtn = document.querySelector<HTMLButtonElement>("#startGameBtn");
+  const gameStartPage = document.querySelector("#gameStartPage") as HTMLElement;
+  const playPage = document.querySelector("#playPage") as HTMLElement;
 
   if (!startBtn) return;
 
-  startBtn.addEventListener("click", () => {
-    // Dölj startskärmen
+  startBtn.addEventListener("click", (): void => {
     gameStartPage.classList.add("d-none");
-
-    // Visa spel-sidan
     playPage.classList.remove("d-none");
 
-    // Starta quiz
     if (maplesGlobal.length) renderQuizMaples(maplesGlobal);
-
-    // Nollställ gameResultMsg
-    gameResultMsg.classList.add("d-none");
   });
 };
-
-// fick hjälp av chatGpt, gjorde för många snabba anrop
-// och fick inte lov att ändra API längre vid ett tillfälle
+//---------------- Kolla om det redan finns lönn - data i localStorage---------------------
 const maplesSetup = async (): Promise<void> => {
-  // Kolla om vi redan har data i localStorage
   const cachedMaples = localStorage.getItem("maplesData");
   if (cachedMaples) {
     console.log("Hämtar maples från localStorage");
@@ -101,8 +93,8 @@ const maplesSetup = async (): Promise<void> => {
         console.log(`Hoppar över lönn med id ${maple.id} eftersom data saknas`);
         continue;
       }
+
       maples.push(mapleDetails);
-      await delay(200); // delay mellan requests
     } catch (error) {
       console.error("Fel vid hämtning av lönn:", error);
     }
@@ -114,7 +106,7 @@ const maplesSetup = async (): Promise<void> => {
   maplesGlobal = maples;
   renderStudyMaples(maples);
 };
-
+//---------------------Förbereder för att mina maples ska synas--------------
 const renderStudyMaples = (maples: iPlantExtraInfo[]): void => {
   const plantsSection = document.querySelector("#plantsSection") as HTMLElement;
   maples.forEach((maple) => {
@@ -122,32 +114,31 @@ const renderStudyMaples = (maples: iPlantExtraInfo[]): void => {
     plantsSection?.appendChild(cardRef);
   });
 };
-
+//---------------------Skapar upp de enskilda maples-korten som ska visas--------------
 const createMapleCard = (maple: iPlantExtraInfo): HTMLElement => {
   const cardRef: HTMLElement = document.createElement("article");
   cardRef.classList.add("study-plant");
 
   const cardTemplate: string = `
     <img src="${maple.default_image.regular_url}" alt="${maple.common_name}" class="study-plant__img"/>
-    <h2 class="study-plant__title">Namn: ${maple.common_name}</h2>
-    <p class="study-plant__info">Vetenskapligt namn: ${maple.scientific_name[0]}</p>
-    <p class="study-plant__info">Vetenskapligt namn: ${maple.description}</p>
+    <h2 class="study-plant__title">${maple.common_name}</h2>
+    <p class="study-plant__info"><span class="study-plant__info--bold">Vetenskapligt namn:</span> ${maple.scientific_name[0]}</p>
+    <p class="study-plant__info"><span class="study-plant__info--bold">Beskrivning:</span> ${maple.description}</p>
   `;
   cardRef.innerHTML = cardTemplate;
   return cardRef;
 };
-
+//----------------------------Min spelplan-------------------------
 const renderQuizMaples = (plants: iPlant[]): void => {
   const playPage = document.querySelector("#playPage") as HTMLElement;
-  const playSection = playPage.querySelector<HTMLImageElement>("#playPlantSection")!;
-  const imgEl = playPage.querySelector<HTMLImageElement>(".play__img")!;
-  const questionEl = playPage.querySelector<HTMLHeadingElement>(".play__question")!;
-  const btnsSection = document.querySelector<HTMLButtonElement>(".play__btn-section")!;
-  const btns = btnsSection.querySelectorAll<HTMLButtonElement>(".play__btn");
+  const imgEl = playPage.querySelector(".play__img") as HTMLImageElement;
+  const questionEl = playPage.querySelector(".play__question") as HTMLHeadingElement;
+  const btnsSection = document.querySelector(".play__btn-section") as HTMLElement;
+  const btns: NodeListOf<HTMLButtonElement> = btnsSection.querySelectorAll<HTMLButtonElement>(".play__btn");
 
   let currentPlant: iPlant;
   let currentQuestion: number = 1;
-  let totalQuestions: number = 5;
+  let totalQuestions: number = totalNrQuestions;
   let score: number = 0;
 
   function getRandomFour(plants: iPlant[]): iPlant[] {
@@ -184,6 +175,11 @@ const renderQuizMaples = (plants: iPlant[]): void => {
       }
       currentQuestion = 1;
       score = 0;
+      btns.forEach((btn) => {
+        btn.textContent = "";
+        btn.onclick = null;
+      });
+
       return;
     }
     const options = getRandomFour(plants);
@@ -217,7 +213,6 @@ const renderQuizMaples = (plants: iPlant[]): void => {
 };
 
 document.addEventListener("DOMContentLoaded", async (): Promise<void> => {
-  pageSetup();
   navSetup();
   quizStartSetup();
   await maplesSetup();
